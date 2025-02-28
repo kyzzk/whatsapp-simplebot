@@ -9,13 +9,22 @@ const app = express();
 app.use(express.json({ limit: '50mb' }));
 
 // Carrega e serve o Swagger
-const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// Redireciona raiz para documentação
-app.get('/', (req, res) => {
-    res.redirect('/api-docs');
-});
+let swaggerDocument;
+try {
+    swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+    
+    // Redireciona raiz para documentação
+    app.get('/', (req, res) => {
+        res.redirect('/api-docs');
+    });
+} catch (error) {
+    console.error('Erro ao carregar swagger.yaml:', error);
+    // Rota alternativa para a raiz caso o swagger falhe
+    app.get('/', (req, res) => {
+        res.json({ message: 'WhatsApp API is running' });
+    });
+}
 
 // Create client instance with local auth
 const client = new Client({

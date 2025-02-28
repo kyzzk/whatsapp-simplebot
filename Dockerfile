@@ -30,8 +30,9 @@ RUN mkdir -p .wwebjs_auth/session \
 # Switch to non-root user
 USER node
 
-# Copy rest of the files
+# Copy rest of the files including swagger.yaml
 COPY --chown=node:node . .
+COPY --chown=node:node swagger.yaml ./swagger.yaml
 
 # Configure Puppeteer to use Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
