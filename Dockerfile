@@ -18,15 +18,19 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# Create and set permissions for cache directory
+# Copy package files and install dependencies as root
+COPY package*.json ./
+RUN npm install
+
+# Create and set permissions for cache directory and node_modules
 RUN mkdir -p .wwebjs_auth/session \
-    && chown -R node:node .wwebjs_auth
+    && chown -R node:node . \
+    && chmod -R 755 .
 
 # Switch to non-root user
 USER node
 
-COPY --chown=node:node package*.json ./
-RUN npm install
+# Copy rest of the files
 COPY --chown=node:node . .
 
 # Configure Puppeteer to use Chromium
