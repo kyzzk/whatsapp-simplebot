@@ -17,9 +17,17 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY package*.json ./
+
+# Create and set permissions for cache directory
+RUN mkdir -p .wwebjs_auth/session \
+    && chown -R node:node .wwebjs_auth
+
+# Switch to non-root user
+USER node
+
+COPY --chown=node:node package*.json ./
 RUN npm install
-COPY . .
+COPY --chown=node:node . .
 
 # Configure Puppeteer to use Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
