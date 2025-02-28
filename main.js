@@ -1,7 +1,6 @@
 const express = require('express');
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
-const axios = require('axios');
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -44,7 +43,17 @@ app.get('/qrcode', (req, res) => {
     }
     
     if (!qrCodeBase64) {
-        return res.status(404).json({ error: 'QR Code not generated yet' });
+        console.log('QR Code not available, generating...');
+        if (!client.pupPage) {
+            client.initialize();
+        }
+        return setTimeout(() => {
+            if (qrCodeBase64) {
+                res.json({ qrcode: qrCodeBase64 });
+            } else {
+                res.status(404).json({ error: 'Failed to generate QR Code, please try again' });
+            }
+        }, 5000);
     }
     
     res.json({ qrcode: qrCodeBase64 });
