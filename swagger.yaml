@@ -4,11 +4,11 @@ info:
   description: API para enviar mensagens e gerenciar conexões do WhatsApp Web
   version: 1.0.0
   contact:
-    name: API Support
-    email: support@example.com
+    name: Guilherme
+    email: guilherme.seguro00@gmail.com
 
 servers:
-  - url: http://localhost:3000
+  - url: https://whatsapp-simplebot.onrender.com
     description: Local Development Server
 
 tags:
