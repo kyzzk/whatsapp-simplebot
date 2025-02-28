@@ -1,0 +1,188 @@
+openapi: 3.0.0
+info:
+  title: WhatsApp Web API
+  description: API para enviar mensagens e gerenciar conexões do WhatsApp Web
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:3000
+    description: Local Development Server
+
+tags:
+  - name: Connection
+    description: Endpoints para gerenciar a conexão do WhatsApp
+  - name: Messaging
+    description: Endpoints para envio de mensagens
+
+paths:
+  /status:
+    get:
+      tags:
+        - Connection
+      summary: Verifica o status da conexão
+      description: Retorna se o WhatsApp está conectado ou não
+      responses:
+        '200':
+          description: Status da conexão retornado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  connected:
+                    type: boolean
+                    description: Status da conexão
+                    example: true
+                  message:
+                    type: string
+                    description: Mensagem descritiva do status
+                    example: "WhatsApp is connected"
+
+  /qrcode:
+    get:
+      tags:
+        - Connection
+      summary: Obtém o QR Code para conexão
+      description: Retorna o QR Code em base64 para escanear no WhatsApp
+      responses:
+        '200':
+          description: QR Code retornado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  qrcode:
+                    type: string
+                    description: QR Code em base64
+                    example: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+        '404':
+          description: QR Code não disponível
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to generate QR Code, please try again"
+        '409':
+          description: WhatsApp já está conectado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "WhatsApp is already connected"
+
+  /disconnect:
+    post:
+      tags:
+        - Connection
+      summary: Desconecta o WhatsApp
+      description: Desconecta a sessão atual e limpa os dados de autenticação
+      responses:
+        '200':
+          description: Desconectado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "WhatsApp disconnected and auth data deleted"
+        '500':
+          description: Erro ao desconectar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to disconnect properly"
+
+  /send-message:
+    post:
+      tags:
+        - Messaging
+      summary: Envia uma mensagem
+      description: Envia uma mensagem de texto e/ou imagem para um número do WhatsApp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - number
+                - message
+              properties:
+                number:
+                  type: string
+                  description: Número do WhatsApp (formato internacional sem + ou espaços)
+                  example: "5511999999999"
+                message:
+                  type: string
+                  description: Texto da mensagem
+                  example: "Hello World!"
+                image_base64:
+                  type: string
+                  description: Imagem em base64 (opcional)
+                  example: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+      responses:
+        '200':
+          description: Mensagem enviada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Message sent successfully"
+        '400':
+          description: Erro de validação ou WhatsApp não conectado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Number and message are required"
+        '500':
+          description: Erro ao enviar mensagem
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to send message"
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mensagem de erro
+      required:
+        - error
+
+security: [] 

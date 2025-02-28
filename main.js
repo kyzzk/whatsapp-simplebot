@@ -1,9 +1,21 @@
 const express = require('express');
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const path = require('path');
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
+
+// Carrega e serve o Swagger
+const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Redireciona raiz para documentação
+app.get('/', (req, res) => {
+    res.redirect('/api-docs');
+});
 
 // Create client instance with local auth
 const client = new Client({
@@ -70,6 +82,7 @@ app.get('/qrcode', (req, res) => {
     
     res.json({ qrcode: qrCodeBase64 });
 });
+
 app.post('/disconnect', async (req, res) => {
     try {
         await client.destroy();
@@ -79,7 +92,6 @@ app.post('/disconnect', async (req, res) => {
             '.wwebjs_auth/session';
         
         const fs = require('fs');
-        const path = require('path');
         
         if (fs.existsSync(authFolder)) {
             fs.rmSync(authFolder, { recursive: true, force: true });
@@ -130,4 +142,5 @@ app.post('/send-message', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
 });
