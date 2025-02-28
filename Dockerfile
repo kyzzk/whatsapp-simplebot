@@ -12,6 +12,7 @@ RUN apt-get update \
     fonts-freefont-ttf \
     libxss1 \
     xvfb \
+    xauth \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
